@@ -1,6 +1,6 @@
 from flask import Flask
 import requests
-
+import json
     
 
 
@@ -10,4 +10,28 @@ def emotion_detector(text_to_analyse):
     myobj = { "raw_document": { "text": text_to_analyse } }  
     header = {"grpc-metadata-mm-model-id": "emotion_aggregated-workflow_lang_en_stock"}
     response = requests.post(url, json = myobj, headers=header)  
-    return response.text  # Return the response text from the API
+    formatted_response = json.loads(response.text)
+    anger_score = formatted_response['emotion']['anger']
+    disgust_score = formatted_response['emotion']['disgust']
+    fear_score = formatted_response['emotion']['fear']
+    joy_score = formatted_response['emotion']['joy']
+    sadness_score = formatted_response['emotion']['sadness']
+    max_score = max(anger_score, disgust_score, fear_score, joy_score, sadness_score)
+    if(max_score == anger_score):
+        dominant = 'anger'
+    elif(max_score == disgust_score):
+        dominant = 'disgust'
+    elif(max_score == fear_score):
+        dominant == 'fear'
+    elif(max_score == joy_score):
+        dominant = 'joy'
+    else:
+        dominant = 'sadness'
+    return {
+        'anger': anger_score,
+        'disgust': disgust_score,
+        'fear': fear_score,
+        'joy': joy_score,
+        'sadness': sadness_score,
+        'dominant_emotion': dominant
+        }
