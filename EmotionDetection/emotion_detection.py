@@ -22,7 +22,7 @@ def emotion_detector(text_to_analyse):
     elif(max_score == disgust_score):
         dominant = 'disgust'
     elif(max_score == fear_score):
-        dominant == 'fear'
+        dominant = 'fear'
     elif(max_score == joy_score):
         dominant = 'joy'
     else:
