@@ -1,32 +1,45 @@
+"""
+Emotion Detection Server
+
+This script defines a Flask-based server for performing emotion detection on user-provided text.
+
+Author(Learner): Kunal Dey
+"""
+
 from flask import Flask, render_template, request
 from EmotionDetection.emotion_detection import emotion_detector
+from EmotionDetection.emotion_detection import emotion_predictor
 
-app = Flask("Emotion Detector")
+app = Flask("Emotion Detection")
+
+def run_emotion_detection():
+    """
+    Main function to run the Emotion Detection application.
+    """
+    app.run(host="0.0.0.0", port=5000)
 
 @app.route("/emotionDetector")
 def sent_detector():
-    # Retrieve the text to analyze from the request arguments
-    text_to_analyze = request.args.get('textToAnalyze')
-
-    # Pass the text to the emotion_detector function and store the response
-    response = emotion_detector(text_to_analyze)
-
-    # Extract the label and score from the response
-    anger = response['anger']
-    disgust = response['disgust']
-    fear = response['fear']
-    joy = response['joy']
-    sadness = response['sadness']
-    dominant_emotion = response['dominant_emotion']
-
-    # Return a formatted string with the emotion label and score
+    """
+    Analyze the user-provided text for emotions and return the result.
+    """
+    text_to_detect = request.args.get('textToAnalyze')
+    response = emotion_detector(text_to_detect)
+    formated_response = emotion_predictor(response)
+    if formated_response['dominant_emotion'] is None:
+        return "Invalid text! Please try again."
     return (
-        "For the given statement, the system response is 'anger': 0.006274985, 'disgust': 0.0025598293, 'fear': 0.009251528, 'joy': 0.9680386 and 'sadness': 0.049744144. The dominant emotion is joy."
+        f"For the given statement, the system response is 'anger': {formated_response['anger']} "
+        f"'disgust': {formated_response['disgust']}, 'fear': {formated_response['fear']}, "
+        f"'joy': {formated_response['joy']} and 'sadness': {formated_response['sadness']}. "
+        f"The dominant emotion is {formated_response['dominant_emotion']}."
     )
+
 @app.route("/")
 def render_index_page():
+    ''' This function initiates the rendering of the main application
+        page over the Flask channel
+    '''
     return render_template('index.html')
-
-
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    run_emotion_detection()
